@@ -13,14 +13,17 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-  );
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl,
+    userId: req.user
+    // conveniently you can pass the entire user Object from the request
+    // this is because in the the Product model file, 'userId' is of type ObjectId
+    // therefore mongoose will retrieve the id automatically from the object
+    // so we can avoid passing 'req.user._id' (not that it is a problem anyways)
+  });
 
   product
     .save()
@@ -58,15 +61,14 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedPrice = req.body.price;
   const updatedDescription = req.body.description;
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDescription,
-    updatedImageUrl,
-    productId
-  );
-  product
-    .save()
+  Product.findById(productId)
+    .then((fetchedProduct) => {
+      fetchedProduct.title = updatedTitle;
+      fetchedProduct.price = updatedPrice;
+      fetchedProduct.description = updatedDescription;
+      fetchedProduct.imageUrl = updatedImageUrl;
+      return fetchedProduct.save();
+    })
     .then((result) => {
       console.log('Product successfully updated!');
       res.redirect('/admin/products');
@@ -75,7 +77,16 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+    // say we want to retireve all the product data but not the product id
+    // with select() we can make a finer selection of the data we want to retrieve
+    //    .select('-id')
+    // in case, we can also specifiy the elements to include
+    //    .select(title price -id -description)
+
+    // say we want to retrieve also the name of the user in the userId field
+    // with populate() we can get additional data from a relation field
+    //    .populate('userId', 'username')
     .then((products) => {
       res.render('admin/products', {
         docTitle: 'Admin Products',
@@ -88,7 +99,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteById(productId)
+  Product.findByIdAndDelete(productId)
     .then(() => {
       console.log('Product successfully deleted');
       res.redirect('/admin/products');

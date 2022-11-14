@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 
 :root {
-  --dark-slate-gray: #404E4D;
-  --mango: #FABC2A;
-  --red-salsa: #FF3347;
-  --caribbean-bean: #00C49A;
-  --azure: #3185FC;
+  --dark-slate-gray: rgb(64, 78, 77);
+  --mango: #fabc2a;
+  --jasmine: #ffe096;
+  --red-salsa: rgb(255, 51, 71);
+  --caribbean-bean: rgb(0, 196, 154);
+  --azure: rgb(49, 133, 252);
 }
 
 * {
@@ -71,7 +72,10 @@ form {
   color: white;
 }
 
-.main-header__item a:hover,
+.main-header__item a:hover {
+  color: var(--jasmine);
+}
+
 .main-header__item a:active,
 .main-header__item a.active {
   color: var(--mango);
@@ -137,7 +141,7 @@ form {
   outline: none;
 }
 
-#side-menu-toggle:active,
+#side-menu-toggle:active, 
 #side-menu-toggle:hover {
   color: var(--mango);
   border-color: var(--mango);

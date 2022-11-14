@@ -1,7 +1,10 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+    // .cursor().eachAsync() if you are dealing with large amount of data
+    // otherwise with just find() you get an array of the data
     .then((products) => {
       res.render('shop/product-list', {
         docTitle: 'All Products',
@@ -14,20 +17,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const productId = req.params.productId;
-  // findAll approach
-  /* Product.findAll({ where: { id: productId } })
-    .then(products => {
-      const foundProduct = products[0];
-      res.render('shop/product-detail', {
-        docTitle: foundProduct.title,
-        product: foundProduct,
-        navPath: '/products',
-      });
-    })
-    .catch(err => console.log(err)); */
-
-  // findByPk approach
   Product.findById(productId)
+    // mongooose's findById() can get the id string and will convert it to an ObjectId automatically
     .then((product) => {
       if (!product) {
         return res.redirect('/');
@@ -42,7 +33,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render('shop/index', {
         docTitle: 'Shop',
@@ -55,12 +46,13 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then((cartProducts) => {
+    .populate('cart.items.productId')
+    .then((user) => {
+      const products = getCartProducts(user);
       res.render('shop/cart', {
         docTitle: 'Your Cart',
         navPath: '/cart',
-        products: cartProducts,
+        products: products,
       });
     })
     .catch((err) => console.log(err));
@@ -73,7 +65,6 @@ exports.postCart = (req, res, next) => {
       return req.user.addToCart(product);
     })
     .then((result) => {
-      console.log(result);
       res.redirect('/cart');
     })
     .catch((err) => console.log(err));
@@ -82,7 +73,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteItem = (req, res, next) => {
   const productId = req.body.productId;
   req.user
-    .deleteCartItem(productId)
+    .removeFromCart(productId)
     .then((result) => {
       console.log('Item successfully deleted from the cart!');
       res.redirect('/cart');
@@ -91,18 +82,35 @@ exports.postCartDeleteItem = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
   req.user
-    .addOrder()
+    .populate('cart.items.productId')
+    .then((user) => {
+      const cart = getCartProducts(user);
+      const cartProducts = cart.products.map((i) => {
+        return { product: i.item, quantity: i.quantity };
+      });
+      const order = new Order({
+        user: {
+          userId: req.user._id,
+          username: req.user.username,
+        },
+        products: cartProducts,
+        total: cart.total
+      });
+      
+      return order.save();
+    })
     .then((result) => {
+      return req.user.clearCart();
+    })
+    .then(() => {
       res.redirect('/orders');
     })
     .catch((err) => console.log(err));
 };
 
 exports.getOrders = (req, res, next) => {
-  req.user
-    .getOrders()
+  Order.find({ 'user.userId': req.user._id })
     .then((orders) => {
       res.render('shop/orders', {
         docTitle: 'Your Orders¯',
@@ -112,3 +120,36 @@ exports.getOrders = (req, res, next) => {
     })
     .catch((err) => console.log(err));
 };
+
+/**
+ * Returns an array of products destructed from the given user's cart.
+ * @param user which cart items we need to destruct into the array.
+ * @returns array of products destructed from the user's cart.
+ */
+function getCartProducts(user) {
+  const products = user.cart.items.map((item) => {
+    return {
+      item: {
+        _id: item.productId._id,
+        title: item.productId.title,
+        price: item.productId.price,
+        description: item.productId.description,
+        imageUrl: item.productId.imageUrl,
+      },
+      quantity: item.quantity,
+    };
+  });
+  
+  let total = 0;
+  products.forEach((element) => {
+    total =
+      Math.round(
+        (element.item.price * element.quantity + total + Number.EPSILON) * 100
+      ) / 100;
+  });
+
+  return {
+    products: products,
+    total: total,
+  };
+}
