@@ -9,45 +9,83 @@
             <li class="main-header__item">
                 <a class="<%= navPath === '/products' ? 'active' : '' %>" href="/products">Products</a>
             </li>
-            <li class="main-header__item">
-                <a class="<%= navPath === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
-            </li>
-            <li class="main-header__item">
-                <a class="<%= navPath === '/orders' ? 'active' : '' %>" href="/orders">Orders</a>
-            </li>
-            <li class="main-header__item">
-                <a class="<%= navPath === '/admin/add-product' ? 'active' : '' %>" href="/admin/add-product">Add Product
-                </a>
-            </li>
-            <li class="main-header__item">
-                <a class="<%= navPath === '/admin/products' ? 'active' : '' %>" href="/admin/products">Admin Products
-                </a>
-            </li>
+            <% if(isAuthenticated) { %> 
+                <li class="main-header__item">
+                    <a class="<%= navPath === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
+                </li>
+                <li class="main-header__item">
+                    <a class="<%= navPath === '/orders' ? 'active' : '' %>" href="/orders">Orders</a>
+                </li>
+                <li class="main-header__item">
+                    <a class="<%= navPath === '/admin/add-product' ? 'active' : '' %>" href="/admin/add-product">Add Product
+                    </a>
+                </li>
+                <li class="main-header__item">
+                    <a class="<%= navPath === '/admin/products' ? 'active' : '' %>" href="/admin/products">Admin Products
+                    </a>
+                </li>
+            <% } %>                      
         </ul>
+        <% if(!isAuthenticated) { %> 
+            <ul class="main-header__item-list">
+                <li class="main-header__item">
+                    <a href="/login">
+                        <button class="btn success" type="button">Login</button>
+                    </a>
+                </li>
+            </ul>
+        <% } else { %>  
+            <ul class="main-header__item-list">
+                <li class="main-header__item">
+                    <form action="/logout" method="POST">
+                        <button class="btn danger" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        <% } %> 
     </nav>
 </header>
 
 <nav class="mobile-nav">
-        <ul class="mobile-nav__item-list">
+    <ul class="mobile-nav__item-list">
+        <li class="mobile-nav__item">
+            <a class="<%= navPath === '/' ? 'active' : '' %>" href="/">Shop</a>
+        </li>
+        <li class="mobile-nav__item">
+            <a class="<%= navPath === '/products' ? 'active' : '' %>" href="/products">Products</a>
+        </li>
+        <% if (isAuthenticated) { %>
+            <li class="mobile-nav__item">
+                <a class="<%= navPath === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
+            </li>
+            <li class="mobile-nav__item">
+                <a class="<%= navPath === '/orders' ? 'active' : '' %>" href="/orders">Orders</a>
+            </li>
+            <li class="mobile-nav__item">
+                <a class="<%= navPath === '/admin/add-product' ? 'active' : '' %>" href="/admin/add-product">Add Product
+                </a>
+            </li>
+            <li class="mobile-nav__item">
+                <a class="<%= navPath === '/admin/products' ? 'active' : '' %>" href="/admin/products">Admin Products
+                </a>
+            </li>
+        </ul>
+        <% } %>
+        <% if (!isAuthenticated) { %>
+            <ul class="mobile-nav__item-list"></ul>
                 <li class="mobile-nav__item">
-                    <a class="<%= navPath === '/' ? 'active' : '' %>" href="/">Shop</a>
-                </li>
-                <li class="mobile-nav__item">
-                    <a class="<%= navPath === '/products' ? 'active' : '' %>" href="/products">Products</a>
-                </li>
-                <li class="mobile-nav__item">
-                    <a class="<%= navPath === '/cart' ? 'active' : '' %>" href="/cart">Cart</a>
-                </li>
-                <li class="mobile-nav__item">
-                    <a class="<%= navPath === '/orders' ? 'active' : '' %>" href="/orders">Orders</a>
-                </li>
-                <li class="mobile-nav__item">
-                    <a class="<%= navPath === '/admin/add-product' ? 'active' : '' %>" href="/admin/add-product">Add Product
-                    </a>
-                </li>
-                <li class="mobile-nav__item">
-                    <a class="<%= navPath === '/admin/products' ? 'active' : '' %>" href="/admin/products">Admin Products
+                    <a href="/login">
+                        <button class="btn success" type="button">Login</button>
                     </a>
                 </li>
             </ul>
+        <% } else { %>
+            <ul class="mobile-nav__item-list"></ul>
+                <li class="mobile-nav__item">
+                    <form action="/logout" method="post">
+                        <button class="btn danger" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>            
+        <% } %>
 </nav>

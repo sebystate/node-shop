@@ -5,6 +5,7 @@ exports.getAddProduct = (req, res, next) => {
     docTitle: 'Add Product',
     navPath: '/admin/add-product',
     editing: false,
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -18,7 +19,8 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
-    userId: req.user
+    userId: req.user,
+    isAuthenticated: req.session.isLoggedIn,
     // conveniently you can pass the entire user Object from the request
     // this is because in the the Product model file, 'userId' is of type ObjectId
     // therefore mongoose will retrieve the id automatically from the object
@@ -50,6 +52,7 @@ exports.getEditProduct = (req, res, next) => {
         navPath: '/admin/edit-product',
         editing: editMode,
         product: product,
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => console.log(err));
@@ -92,6 +95,7 @@ exports.getProducts = (req, res, next) => {
         docTitle: 'Admin Products',
         navPath: '/admin/products',
         products: products,
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => console.log(err));

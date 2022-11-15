@@ -1,28 +1,52 @@
 const path = require('path');
 
 const express = require('express');
+
 const bodyParser = require('body-parser');
+
 const mongoose = require('mongoose');
 
-const errorController = require('./controllers/error');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
-const User = require('./models/user');
+const MONGODB_URI =
+  'mongodburi';
+
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: 'sessions',
+});
 
 const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
+const User = require('./models/user');
+
+const errorController = require('./controllers/error');
+
 const adminRoutes = require('./routes/admin');
+const authRoutes = require('./routes/auth');
 const shopRoutes = require('./routes/shop');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    secret: 'this_should_be_longer',
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 
 // hardwiring a login middleware for a user already in the database
 app.use((req, res, next) => {
-  // id of a registered user, in our case it's the dummy one created below
-  User.findById('63721aff9e5fc9056298f501')
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((fetchedUser) => {
       req.user = fetchedUser;
       next();
@@ -31,14 +55,13 @@ app.use((req, res, next) => {
 });
 
 app.use('/admin', adminRoutes);
+app.use(authRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    'mongodbAtlasString'
-  )
+  .connect(MONGODB_URI)
   .then((result) => {
     // findOne() give back the first user that finds
     User.findOne().then((user) => {
@@ -55,6 +78,7 @@ mongoose
       }
     });
     app.listen(3000);
-    console.log('Connected');
+    console.log('Connected!');
+    console.log('http://localhost:3000');
   })
   .catch((err) => console.log(err));

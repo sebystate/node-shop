@@ -51,8 +51,10 @@ form {
 
 .main-header__nav {
   height: 100%;
+  width: 100%;
   display: none;
   align-items: center;
+  justify-content: space-between;
 }
 
 .main-header__item-list {
@@ -67,17 +69,23 @@ form {
   padding: 0;
 }
 
-.main-header__item a {
+.main-header__item a,
+.main-header__item button {
+  font: inherit;
+  background: transparent;
   text-decoration: none;
   color: white;
+  cursor: pointer;
 }
 
-.main-header__item a:hover {
+.main-header__item a:hover,
+.main-header__item button:hover {
   color: var(--jasmine);
 }
 
 .main-header__item a:active,
-.main-header__item a.active {
+.main-header__item a.active,
+.main-header__item button:active {
   color: var(--mango);
 }
 
@@ -112,11 +120,22 @@ form {
   padding: 0;
 }
 
-.mobile-nav__item a {
+.mobile-nav__item a,
+.mobile-nav__item button {
+  font: inherit;
   text-decoration: none;
   color: black;
   font-size: 1.5rem;
   padding: 0.5rem 2rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+
+.mobile-nav__item button:hover,
+.mobile-nav__item button:active {
+  background-color: var(--azure);
+  color: white;
 }
 
 .mobile-nav__item a:active,
@@ -141,7 +160,11 @@ form {
   outline: none;
 }
 
-#side-menu-toggle:active, 
+#side-menu-toggle:active {
+  color: var(--jasmine);
+  border-color: var(--jasmine);
+}
+
 #side-menu-toggle:hover {
   color: var(--mango);
   border-color: var(--mango);
@@ -204,7 +227,9 @@ form {
   padding: 0.25rem 1rem;
   text-decoration: none;
   font: inherit;
-  border: 1px solid var(--azure);
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--azure);
   color: var(--azure);
   background: white;
   border-radius: 3px;

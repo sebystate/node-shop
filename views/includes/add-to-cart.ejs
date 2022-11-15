@@ -1,4 +1,10 @@
-<form action="/cart" method="POST">
-    <button type="submit" class="btn success">Add to Cart</button>
-    <input type="hidden" name="productId" value="<%= product._id %>">
-</form>
+<% if(isAuthenticated) { %>
+    <form action="/cart" method="POST">
+        <button type="submit" class="btn success">Add to Cart</button>
+        <input type="hidden" name="productId" value="<%= product._id %>" />
+    </form>
+<% } else { %>
+    <a href="/login">
+        <button type="button" class="btn success">Login to Buy</button>
+    </a>
+<% } %> 
