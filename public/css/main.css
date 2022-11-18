@@ -1,17 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 
-:root {
-  --dark-slate-gray: #404e4d;
-  --gainsboro: #DDE3E3;
-  --mango: #fabc2a;
-  --jasmine: #ffe096;
-  --red-salsa: #ff3347;
-  --pink: #FFC2C9;
-  --caribbean-bean: #00c49a;
-  --aero-blue: #C2FFF2;
-  --azure: #3185fc;
-  --beau-blue: #C3DCFD;
-}
+@import url('./colors.css');
 
 * {
   box-sizing: border-box;
@@ -310,14 +299,14 @@ form {
   color: white;
 }
 
-.btn.warning {
+.btn.alert {
   color: var(--mango);
   border-color: var(--mango);
   background: white;
 }
 
-.btn.warning:hover,
-.btn.warning:active {
+.btn.alert:hover,
+.btn.alert:active {
   background: var(--mango);
   color: white;
 }

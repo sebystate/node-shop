@@ -1,4 +1,4 @@
-<% if(userMessage.message || userMessage.message !== null) { %>
+<% if(userMessage && userMessage.message) { %>
 <div
   class="user-message 
   <% if(userMessage.type === 'error') { %>user-message--danger

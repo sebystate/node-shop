@@ -13,9 +13,10 @@
                 <label for="email">E-mail</label>
                 <input type="email" name="email" id="email">
             </div>
-           
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn warning" type="submit">Reset Password</button>
+           <div class="centered">
+               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+               <button class="btn alert" type="submit">Reset Password</button>
+           </div>
         </form>
     </main>
 <%- include('../includes/end.ejs') %> 
