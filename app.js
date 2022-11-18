@@ -9,13 +9,19 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
-const MONGODB_URI =
-  'mongodburi';
+const csrf = require('csurf');
+
+const flash = require('connect-flash');
+
+var env = process.env.NODE_ENV || 'development';
+const config = require('./config')[env];
 
 const store = new MongoDBStore({
-  uri: MONGODB_URI,
+  uri: config.MONGODB_URI,
   collection: 'sessions',
 });
+
+const csrfProtection = csrf();
 
 const app = express();
 
@@ -41,7 +47,11 @@ app.use(
   })
 );
 
-// hardwiring a login middleware for a user already in the database
+app.use(csrfProtection);
+
+app.use(flash());
+
+// extract the user from the session
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
@@ -54,6 +64,13 @@ app.use((req, res, next) => {
     .catch((err) => console.log(err));
 });
 
+// authentication and csrfToken middleware
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 app.use('/admin', adminRoutes);
 app.use(authRoutes);
 app.use(shopRoutes);
@@ -61,24 +78,10 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(MONGODB_URI)
+  .connect(config.MONGODB_URI)
   .then((result) => {
-    // findOne() give back the first user that finds
-    User.findOne().then((user) => {
-      if (!user) {
-        // Create a dummy user
-        const user = new User({
-          username: 'sebystate',
-          email: 'sebystate@nodeShop.com',
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
-    app.listen(3000);
+    app.listen(config.server.port);
     console.log('Connected!');
-    console.log('http://localhost:3000');
+    console.log(config.url);
   })
   .catch((err) => console.log(err));

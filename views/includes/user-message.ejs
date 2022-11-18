@@ -1,0 +1,10 @@
+<% if(userMessage.message || userMessage.message !== null) { %>
+<div
+  class="user-message 
+  <% if(userMessage.type === 'error') { %>user-message--danger
+    <% } else if(userMessage.type === 'info') { %>user-message--info
+        <% } else if(userMessage.type === 'success') { %>user-message--success<% } %>"
+>
+  <%= userMessage.message%>
+</div>
+<% } %>

@@ -1,3 +1,4 @@
+const product = require('../models/product');
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -5,7 +6,6 @@ exports.getAddProduct = (req, res, next) => {
     docTitle: 'Add Product',
     navPath: '/admin/add-product',
     editing: false,
-    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -20,7 +20,6 @@ exports.postAddProduct = (req, res, next) => {
     description: description,
     imageUrl: imageUrl,
     userId: req.user,
-    isAuthenticated: req.session.isLoggedIn,
     // conveniently you can pass the entire user Object from the request
     // this is because in the the Product model file, 'userId' is of type ObjectId
     // therefore mongoose will retrieve the id automatically from the object
@@ -52,7 +51,6 @@ exports.getEditProduct = (req, res, next) => {
         navPath: '/admin/edit-product',
         editing: editMode,
         product: product,
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => console.log(err));
@@ -66,36 +64,31 @@ exports.postEditProduct = (req, res, next) => {
   const updatedDescription = req.body.description;
   Product.findById(productId)
     .then((fetchedProduct) => {
+      if (fetchedProduct.userId.toString() !== req.user._id.toString()) {
+        return res.redirect('/');
+      }
       fetchedProduct.title = updatedTitle;
       fetchedProduct.price = updatedPrice;
       fetchedProduct.description = updatedDescription;
       fetchedProduct.imageUrl = updatedImageUrl;
-      return fetchedProduct.save();
-    })
-    .then((result) => {
-      console.log('Product successfully updated!');
-      res.redirect('/admin/products');
+      return fetchedProduct
+        .save()
+        .then((result) => {
+          console.log('Product successfully updated!');
+          res.redirect('/admin/products');
+        })
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
-    // say we want to retireve all the product data but not the product id
-    // with select() we can make a finer selection of the data we want to retrieve
-    //    .select('-id')
-    // in case, we can also specifiy the elements to include
-    //    .select(title price -id -description)
-
-    // say we want to retrieve also the name of the user in the userId field
-    // with populate() we can get additional data from a relation field
-    //    .populate('userId', 'username')
+  Product.find({ userId: req.user._id })
     .then((products) => {
       res.render('admin/products', {
         docTitle: 'Admin Products',
         navPath: '/admin/products',
         products: products,
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => console.log(err));
@@ -103,7 +96,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.findByIdAndDelete(productId)
+  Product.deleteOne({ _id: productId, userId: req.user._id })
     .then(() => {
       console.log('Product successfully deleted');
       res.redirect('/admin/products');

@@ -1,12 +1,16 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 
 :root {
-  --dark-slate-gray: rgb(64, 78, 77);
+  --dark-slate-gray: #404e4d;
+  --gainsboro: #DDE3E3;
   --mango: #fabc2a;
   --jasmine: #ffe096;
-  --red-salsa: rgb(255, 51, 71);
-  --caribbean-bean: rgb(0, 196, 154);
-  --azure: rgb(49, 133, 252);
+  --red-salsa: #ff3347;
+  --pink: #FFC2C9;
+  --caribbean-bean: #00c49a;
+  --aero-blue: #C2FFF2;
+  --azure: #3185fc;
+  --beau-blue: #C3DCFD;
 }
 
 * {
@@ -17,11 +21,18 @@ body {
   padding: 0;
   margin: 0;
   font-family: 'Open Sans', sans-serif;
+  background-color: var(--gainsboro);
 }
 
 main {
   padding: 1rem;
   margin: auto;
+}
+
+main .btn {
+  border-style: solid;
+  border-width: 1px;
+  border-color: inherit;
 }
 
 form {
@@ -73,19 +84,30 @@ form {
 .main-header__item button {
   font: inherit;
   background: transparent;
+  border-color: transparent;
+  border-style: none;
   text-decoration: none;
   color: white;
   cursor: pointer;
 }
 
-.main-header__item a:hover,
-.main-header__item button:hover {
+.main-header__item button.active {
+  border-style: solid;
+  border-width: 1px;
+  border-color: initial;
+}
+
+.main-header__item button:hover, 
+.main-header__item button:active {
+  border-color: inherit;
+}
+
+.main-header__item a:hover {
   color: var(--jasmine);
 }
 
 .main-header__item a:active,
-.main-header__item a.active,
-.main-header__item button:active {
+.main-header__item a.active {
   color: var(--mango);
 }
 
@@ -96,7 +118,7 @@ form {
   position: fixed;
   left: 0;
   top: 0;
-  background: white;
+  background: var(--dark-slate-gray);
   z-index: 10;
   padding: 2rem 1rem 1rem 2rem;
   transform: translateX(-100%);
@@ -109,6 +131,7 @@ form {
 
 .mobile-nav__item-list {
   list-style: none;
+  list-style-type: none;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -124,26 +147,38 @@ form {
 .mobile-nav__item button {
   font: inherit;
   text-decoration: none;
-  color: black;
+  border-style: none;
+  border-radius: 3px;
+  color: var(--dark-slate-gray);
   font-size: 1.5rem;
   padding: 0.5rem 2rem;
   background: transparent;
+  color: white;
   cursor: pointer;
 }
 
+.mobile-nav__item button {
+  color: initial;
+}
 
-.mobile-nav__item button:hover,
-.mobile-nav__item button:active {
-  background-color: var(--azure);
-  color: white;
+.mobile-nav__item .btn.active {
+  border-style: solid;
+  border-width: 1px;
+}
+
+.mobile-nav__item a.btn:hover, 
+.mobile-nav__item a.btn:active {
+  border-color: inherit;
 }
 
 .mobile-nav__item a:active,
-.mobile-nav__item a:hover,
+.mobile-nav__item a:hover {
+  background: var(--jasmine);
+  color: var(--dark-slate-gray);
+}
+
 .mobile-nav__item a.active {
-  background: var(--dark-slate-gray);
-  color: white;
-  border-radius: 3px;
+  background: var(--mango);
 }
 
 #side-menu-toggle {
@@ -229,15 +264,26 @@ form {
   font: inherit;
   border-style: solid;
   border-width: 1px;
-  border-color: var(--azure);
-  color: var(--azure);
-  background: white;
+  border-color: var(--dark-slate-gray);
+  color: var(--dark-slate-gray);
+  background: transparent;
   border-radius: 3px;
   cursor: pointer;
 }
 
 .btn:hover,
 .btn:active {
+  background-color: var(--dark-slate-gray);
+  color: white;
+}
+
+.btn.info {
+  color: var(--azure);
+  border-color: var(--azure);
+}
+
+.btn.info:hover,
+.btn.info:active {
   background-color: var(--azure);
   color: white;
 }
@@ -264,6 +310,48 @@ form {
   color: white;
 }
 
+.btn.warning {
+  color: var(--mango);
+  border-color: var(--mango);
+  background: white;
+}
+
+.btn.warning:hover,
+.btn.warning:active {
+  background: var(--mango);
+  color: white;
+}
+
+.user-message {
+  margin: auto;
+  width: 90%;
+  padding: 0.5rem;
+  border: 1px solid var(--dark-slate-gray);
+  border-radius: 3px;
+  background-color: var(--gainsboro);
+  color: var(--dark-slate-gray);
+  text-align: center;
+  font-weight: bold;
+}
+
+.user-message--danger {
+  border-color: var(--red-salsa);
+  background-color: var(--pink);
+  color: var(--red-salsa);
+}
+
+.user-message--info {
+  border-color: var(--azure);
+  background-color: var(--beau-blue);
+  color: var(--azure);
+}
+
+.user-message--success {
+  border-color: var(--caribbean-bean);
+  background-color: var(--aero-blue);
+  color: var(--caribbean-bean);
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
@@ -271,5 +359,9 @@ form {
 
   #side-menu-toggle {
     display: none;
+  }
+
+  .user-message {
+    width: 30rem;
   }
 }
