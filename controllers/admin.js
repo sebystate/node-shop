@@ -13,12 +13,12 @@ exports.getAddProduct = (req, res, next) => {
     navPath: '/admin/add-product',
     editing: false,
     userMessage: message,
-     product: {
-        title: '',
-        imageUrl: '',
-        price: null,
-        description: '',
-      },
+    product: {
+      title: '',
+      imageUrl: '',
+      price: null,
+      description: '',
+    },
     validationErrors: [],
   });
 };
@@ -64,7 +64,34 @@ exports.postAddProduct = (req, res, next) => {
       console.log('Created new product');
       res.redirect('/admin/products');
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      // re-render the same page with an error
+      /* return res.status(500).render('admin/edit-product', {
+        docTitle: 'Add Product',
+        navPath: '/admin/add-product',
+        editing: false,
+        userMessage: {
+          message: 'Database operation failed, please try again.',
+          type: 'error',
+        },
+        product: {
+          title: title,
+          imageUrl: imageUrl,
+          price: price,
+          description: description,
+        },
+        validationErrors: [],
+      }); */
+
+      // render /500 page
+      // res.redirect('/500');
+
+      // create an error and pass it along to the error handling middleware
+      // this means that all the next set middlewares are skipped
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -84,11 +111,16 @@ exports.getEditProduct = (req, res, next) => {
         navPath: '/admin/edit-product',
         editing: editMode,
         userMessage: null,
+        // IMPORTANT: _id is baked in 'product' so it can be accessed in the view
         product: product,
         validationErrors: [],
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -115,7 +147,8 @@ exports.postEditProduct = (req, res, next) => {
         imageUrl: updatedImageUrl,
         price: updatedPrice,
         description: updatedDescription,
-        _id: productId
+        // IMPORTANT: you need to pass back the _id otherwise you won't be able to access it in the view upon failing validation
+        _id: productId,
       },
       validationErrors: errors.array(),
     });
@@ -130,15 +163,16 @@ exports.postEditProduct = (req, res, next) => {
       fetchedProduct.price = updatedPrice;
       fetchedProduct.description = updatedDescription;
       fetchedProduct.imageUrl = updatedImageUrl;
-      return fetchedProduct
-        .save()
-        .then((result) => {
-          console.log('Product successfully updated!');
-          res.redirect('/admin/products');
-        })
-        .catch((err) => console.log(err));
+      return fetchedProduct.save().then((result) => {
+        console.log('Product successfully updated!');
+        res.redirect('/admin/products');
+      });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducts = (req, res, next) => {
@@ -150,7 +184,11 @@ exports.getProducts = (req, res, next) => {
         products: products,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -160,5 +198,9 @@ exports.postDeleteProduct = (req, res, next) => {
       console.log('Product successfully deleted');
       res.redirect('/admin/products');
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
