@@ -341,6 +341,29 @@ form {
   color: var(--caribbean-bean);
 }
 
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: var(--dark-slate-gray);
+  padding: 0.5rem;
+  border: 1px solid var(--dark-slate-gray);
+  border-radius: 3px;
+  margin: 0 1rem;
+}
+
+.pagination a:hover,
+.pagination a:active {
+  background-color: var(--jasmine);
+}
+.pagination a.active {
+  background: var(--dark-slate-gray);
+  color: var(--mango);
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;

@@ -5,15 +5,30 @@ const PDFDodument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+const ITEMS_PER_PAGE = 1;
+
 exports.getProducts = (req, res, next) => {
+  const page = +req.query.page || 1;
+  let totalProducts;
   Product.find()
-    // .cursor().eachAsync() if you are dealing with large amount of data
-    // otherwise with just find() you get an array of the data
+    .countDocuments()
+    .then((totProducts) => {
+      totalProducts = totProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render('shop/product-list', {
         docTitle: 'All Products',
         navPath: '/products',
         products: products,
+        currentPage: page,
+        hasPreviousPage: page > 1,
+        previousPage: page - 1,
+        hasNextPage: ITEMS_PER_PAGE * page < totalProducts,
+        nextPage: page + 1,
+        lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
@@ -45,12 +60,29 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+  // url../?page=..
+  const page = +req.query.page || 1;
+  let totalProducts;
+
   Product.find()
+    .countDocuments()
+    .then((totProducts) => {
+      totalProducts = totProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render('shop/index', {
         docTitle: 'Shop',
         navPath: '/',
         products: products,
+        currentPage: page,
+        hasPreviousPage: page > 1,
+        previousPage: page - 1,
+        hasNextPage: ITEMS_PER_PAGE * page < totalProducts,
+        nextPage: page + 1,
+        lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
@@ -223,6 +255,11 @@ exports.getInvoice = (req, res, next) => {
     });
 };
 
+/**
+ * Generates an invoice with proper styling of the given order.
+ * @param {*} doc pdf document where the invoice will be registered.
+ * @param {*} order order of the invoice in question.
+ */
 function generateInvoice(doc, order) {
   doc
     .rect(0, 0, doc.page.width, doc.page.height)
