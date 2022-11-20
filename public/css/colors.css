@@ -1,12 +1,17 @@
 :root {
+  /* Base */
     --dark-slate-gray: #404e4d;
     --gainsboro: #DDE3E3;
+  /* Alert */
     --mango: #fabc2a;
     --jasmine: #ffe096;
+  /* Danger */
     --red-salsa: #ff3347;
     --pink: #FFC2C9;
+  /* Success */
     --caribbean-bean: #00c49a;
     --aero-blue: #C2FFF2;
+  /* Info */
     --azure: #3185fc;
     --beau-blue: #C3DCFD;
   }

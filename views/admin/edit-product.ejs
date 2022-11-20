@@ -8,7 +8,7 @@
 
     <main>
         <%- include('../includes/user-message.ejs', {userMessage: userMessage}) %> 
-        <form class="product-form" action="/admin/<% if (editing) { %>edit-product<% } else { %>add-product<% } %>" method="POST" novalidate>
+        <form class="product-form" action="/admin/<% if (editing) { %>edit-product<% } else { %>add-product<% } %>" method="POST" enctype="multipart/form-data">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input 
@@ -16,13 +16,19 @@
                     type="text" name="title" id="title" 
                     value="<%= product.title %>">
             </div>
-            <div class="form-control">
+            <!-- <div class="form-control">
                 <label for="imageUrl">Image URL</label>
                 <input 
-                    class="<%= validationErrors.find(e => e.param === 'imageUrl') ? 'invalid' : '' %>"
+                    class="<%#= validationErrors.find(e => e.param === 'imageUrl') ? 'invalid' : '' %>"
                     type="text" name="imageUrl" id="imageUrl" 
-                    value="<%= product.imageUrl %>">
+                    value="<%#= product.imageUrl %>">
+            </div> -->
+
+            <div class="form-control">
+                <label for="image">Image</label>
+                <input type="file" name="image" id="image">
             </div>
+
             <div class="form-control">
                 <label for="price">Price</label>
                 <input 

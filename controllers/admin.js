@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator');
 const { getUserMessage } = require('../util/user-message');
 
+const fileUtils = require('../util/file');
+
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -25,7 +27,7 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
 
@@ -43,13 +45,15 @@ exports.postAddProduct = (req, res, next) => {
       userMessage: message,
       product: {
         title: title,
-        imageUrl: imageUrl,
         price: price,
         description: description,
       },
       validationErrors: errors.array(),
     });
   }
+
+  const imageUrl = image.path;
+
   const product = new Product({
     title: title,
     price: price,
@@ -65,29 +69,6 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect('/admin/products');
     })
     .catch((err) => {
-      // re-render the same page with an error
-      /* return res.status(500).render('admin/edit-product', {
-        docTitle: 'Add Product',
-        navPath: '/admin/add-product',
-        editing: false,
-        userMessage: {
-          message: 'Database operation failed, please try again.',
-          type: 'error',
-        },
-        product: {
-          title: title,
-          imageUrl: imageUrl,
-          price: price,
-          description: description,
-        },
-        validationErrors: [],
-      }); */
-
-      // render /500 page
-      // res.redirect('/500');
-
-      // create an error and pass it along to the error handling middleware
-      // this means that all the next set middlewares are skipped
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
@@ -126,7 +107,7 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const productId = req.body.productId;
   const updatedTitle = req.body.title;
-  const updatedImageUrl = req.body.imageUrl;
+  const imageFile = req.file;
   const updatedPrice = req.body.price;
   const updatedDescription = req.body.description;
 
@@ -144,7 +125,6 @@ exports.postEditProduct = (req, res, next) => {
       userMessage: message,
       product: {
         title: updatedTitle,
-        imageUrl: updatedImageUrl,
         price: updatedPrice,
         description: updatedDescription,
         // IMPORTANT: you need to pass back the _id otherwise you won't be able to access it in the view upon failing validation
@@ -162,7 +142,10 @@ exports.postEditProduct = (req, res, next) => {
       fetchedProduct.title = updatedTitle;
       fetchedProduct.price = updatedPrice;
       fetchedProduct.description = updatedDescription;
-      fetchedProduct.imageUrl = updatedImageUrl;
+      if (imageFile) {
+        fileUtils.deleteFile(fetchedProduct.imageUrl);
+        fetchedProduct.imageUrl = imageFile.path;
+      }
       return fetchedProduct.save().then((result) => {
         console.log('Product successfully updated!');
         res.redirect('/admin/products');
@@ -193,7 +176,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteOne({ _id: productId, userId: req.user._id })
+  Product.findById(productId)
+    .then((fetchedProduct) => {
+      if (!fetchedProduct) {
+        return next(new Error('Product not found'));
+      }
+      fileUtils.deleteFile(fetchedProduct.imageUrl);
+      return Product.deleteOne({ _id: productId, userId: req.user._id });
+    })
     .then(() => {
       console.log('Product successfully deleted');
       res.redirect('/admin/products');

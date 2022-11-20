@@ -20,7 +20,6 @@ router.post(
       .isString()
       .isLength({ min: 3 })
       .trim(),
-    body('imageUrl', 'Please enter a valid url for the image').isURL(),
     body('price')
       .isFloat()
       .custom((value, { req }) => {
@@ -29,6 +28,14 @@ router.post(
         }
         return true;
       }),
+    body('image').custom((value, { req }) => {
+      if (!req.file) {
+        throw new Error(
+          'Please attach a file image with one of the following extensions [.jpg, .jpeg, .png]'
+        );
+      }
+      return true;
+    }),
     body(
       'description',
       'Please enter a valid description for the product (min 5 characters).'
@@ -51,7 +58,14 @@ router.post(
       .isString()
       .isLength({ min: 3 })
       .trim(),
-    body('imageUrl', 'Please enter a valid url for the image').isURL(),
+    body('image').custom((value, { req }) => {
+      if (!req.file) {
+        throw new Error(
+          'Please attach a file image with one of the following extensions [.jpg, .jpeg, .png]'
+        );
+      }
+      return true;
+    }),
     body('price')
       .isFloat()
       .custom((value, { req }) => {
