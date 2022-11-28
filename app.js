@@ -1,9 +1,17 @@
 const path = require('path');
+const fs = require('fs');
+// const https = require('https');
 
 const express = require('express');
 
 const bodyParser = require('body-parser');
 const multer = require('multer');
+
+const helmet = require('helmet');
+
+const compression = require('compression');
+
+const morgan = require('morgan');
 
 const mongoose = require('mongoose');
 
@@ -12,13 +20,16 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 
 const csrf = require('csurf');
 
+//SSL Server key and certificate
+// const privateKey = fs.readFileSync('server.key');
+// const certificate = fs.readFileSync('server.cert');
+
 const flash = require('connect-flash');
 
-var env = process.env.NODE_ENV || 'development';
-const config = require('./config')[env];
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.zzijgaq.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 
 const store = new MongoDBStore({
-  uri: config.MONGODB_URI,
+  uri: MONGODB_URI,
   collection: 'sessions',
 });
 
@@ -36,6 +47,15 @@ const errorController = require('./controllers/error');
 const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
 const shopRoutes = require('./routes/shop');
+
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' }
+);
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -140,10 +160,14 @@ app.use((err, req, res, next) => {
 });
 
 mongoose
-  .connect(config.MONGODB_URI)
+  .connect(MONGODB_URI)
   .then((result) => {
-    app.listen(config.server.port);
+    const port = process.env.PORT || 3000;
+    // https
+    //   .createServer({ key: privateKey, cert: certificate }, app)
+    //   .listen(port);
+
+    app.listen(port)
     console.log('Connected!');
-    console.log('Running on: ' + config.url);
   })
   .catch((err) => console.log(err));

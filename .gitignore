@@ -3,4 +3,7 @@ node_modules/
 jsconfig.json
 .DS_Store
 **.mongodb
-config.js
+server.cert
+server.key
+nodemon.json
+access.log

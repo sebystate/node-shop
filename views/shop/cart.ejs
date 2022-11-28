@@ -29,10 +29,11 @@
                 <h1>$ <%= products.total %> </h1>
             </div>
             <div class="centered">
-                <form action="/create-order" method="POST">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <!-- <form action="/create-order" method="POST">
+                    <input type="hidden" name="_csrf" value="<%#= csrfToken %>">
                     <button class="btn success" type="submit">Order Now!</button>
-                </form>
+                </form> -->
+                <a class="btn success" href="/checkout">Checkout</a>
             </div>
         <% } else { %>
             <h1>No Products in Cart!</h1>

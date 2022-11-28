@@ -11,13 +11,10 @@ const User = require('../models/user');
 
 const { getUserMessage } = require('../util/user-message');
 
-var env = process.env.NODE_ENV || 'development';
-const config = require('../config')[env];
-
 const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
-      api_key: config.mail_server.API_KEY,
+      api_key: process.env.SENDGRID_API_KEY,
     },
   })
 );
@@ -165,7 +162,7 @@ exports.postSignup = (req, res, next) => {
       res.redirect('/login');
       return transporter.sendMail({
         to: email,
-        from: config.mail_server.from_address,
+        from: process.env.SENDGRID_FROM_ADDRESS,
         subject: 'Signup succeeded!',
         html: '<h1>You successfully signed up!</h1>',
       });
@@ -220,11 +217,11 @@ exports.postReset = (req, res, next) => {
         res.redirect('/');
         transporter.sendMail({
           to: req.body.email,
-          from: config.mail_server.from_address,
+          from: process.env.SENDGRID_FROM_ADDRESS,
           subject: 'Password reset!',
           html: `
           <p>You requested a password reset</p>
-          <p>Click this <a href="${config.url}/reset/${token}">link</a> to set a new password</p>
+          <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password</p>
           `,
         });
       })
