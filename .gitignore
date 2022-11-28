@@ -1,9 +1,8 @@
+**/.DS_Store
 .vscode/
-node_modules/
 jsconfig.json
-.DS_Store
-**.mongodb
+*.mongodb
+node_modules/
+nodemon.json
 server.cert
 server.key
-nodemon.json
-access.log
